@@ -17,7 +17,10 @@ class Puzzle {
   }
 
   void shuffle() {
-    tiles.shuffle();
+    do {
+      tiles.shuffle();
+    } while (!isSolvable());
+
     for (int i = 0; i < tiles.length; i++) {
       currentPositions[tiles[i]] = i;
     }
@@ -54,5 +57,31 @@ class Puzzle {
 
     return (row1 == row2 && (col1 - col2).abs() == 1) ||
         (col1 == col2 && (row1 - row2).abs() == 1);
+  }
+
+  bool isSolvable() {
+    int inversions = 0;
+    for (int i = 0; i < tiles.length; i++) {
+      for (int j = i + 1; j < tiles.length; j++) {
+        if (tiles[i] > tiles[j] && tiles[j] != 0) inversions++;
+      }
+    }
+
+    if (size % 2 != 0) {
+      // If the grid width is odd, return true if the number of inversions is even.
+      return inversions % 2 == 0;
+    } else {
+      // If the grid width is even, the puzzle is solvable if:
+      // - the blank is on an even row counting from the bottom (starting from 1),
+      //   and number of inversions is odd
+      // - the blank is on an odd row counting from the bottom (starting from 1),
+      //   and number of inversions is even
+      int blankRowFromBottom = size - (tiles.indexOf(0) ~/ size);
+      if (blankRowFromBottom % 2 == 0) {
+        return inversions % 2 != 0;
+      } else {
+        return inversions % 2 == 0;
+      }
+    }
   }
 }
